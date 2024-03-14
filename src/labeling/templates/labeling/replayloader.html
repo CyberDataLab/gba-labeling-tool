@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        <input name="levelbundle" type="file">
+        <br>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+
+    {% if file_uploaded %}
+    <p>Replays uploaded successfully</p>
+    {% endif %}
+
+
+
+</body>
+
+</html>

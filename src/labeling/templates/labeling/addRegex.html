@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Add new game events</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    iframe {
+      border: none;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Style for the draggable items */
+    .item {
+      cursor: move;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 200px;
+      margin-bottom: 10px;
+      margin-left: 70px;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out;
+    }
+
+    /* Style for the drop zone */
+    .droppable {
+      border: 2px dashed #ccc;
+      padding: 10px;
+      margin-left: 70px;
+      height: 500px;
+      width: 500px;
+      text-align: center;
+    }
+
+    .droppable .editable-text:hover {
+      cursor: pointer;
+      background-color: #e5e5e5;
+    }
+
+    /* Hover style for the draggable items */
+    .item:hover {
+      box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    /* Style for items in the drop zone */
+    .dropped-item {
+      position: relative;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Style for the combined item */
+    .combined-item {
+      background-color: #f0f0f0;
+      border: 2px solid #666;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .trash-icon {
+      display: inline-block;
+      position: absolute;
+      right: 20px;
+      width: 20px;
+      height: 20px;
+      background-image: url("/static/replay/images/trash-icon.png");
+      background-size: contain;
+      cursor: pointer;
+    }
+  </style>
+  <!-- slider stylesheet -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="/static/replay/css/bootstrap.css" />
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&amp;display=swap"
+    rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="/static/replay/css/style.css" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="/static/replay/css/responsive.css" rel="stylesheet" />
+</head>
+
+<body class="sub_page">
+  <div class="hero_area">
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-8">
+            <nav class="navbar navbar-expand-lg custom_nav-container ">
+              <a class="navbar-brand" href="/login">
+                <span> GBA Labeling Tool </span>
+              </a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="d-flex  flex-column flex-lg-row align-items-center">
+                  <ul class="navbar-nav  ">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="/tag"> Replay selection</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/play">Play <span class="sr-only">(current)</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/addCompetence">Add new labels/values</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- end header section -->
+  </div>
+  <!-- tagger section --> {% if errorUser %} <section class="problem_section layout_padding">
+    <div class="container">
+      <h2> User not found. Please, log in first. </h2>
+    </div>
+  </section> {% else %} <section class="problem_section layout_padding">
+    <div class="container">
+      <div class="custom_heading-container" style="margin-bottom: 30px;">
+        <h2> Add custom events combining existing </h2>
+      </div>
+      <div class="row">
+        <div class="col-md6">
+          <div class="custom_heading-container" style="margin-bottom: 30px; margin-left: 55px;">
+            <h4> Items list </h4>
+          </div>
+          <div class="list" id="eventList">
+            <div class="item" draggable="true">Any</div>
+            {% for typeEvent, value in items.items %}
+            <div class="item" draggable="true" data-value="{{typeEvent}}">{{value}}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="droppable" id="droppable">
+            <span class="editable-text" contenteditable="true">New event</span>
+          </div>
+        </div>
+
+        <script>
+          var droppable = document.getElementById("droppable");
+          // Make the editable text non-draggable
+          droppable.addEventListener("dragstart", function (event) {
+            if (event.target.classList.contains("editable-text")) {
+              event.preventDefault();
+            }
+          });
+
+          droppable.addEventListener("mousedown", function (event) {
+            if (event.target.classList.contains("editable-text")) {
+              event.target.focus();
+            }
+          });
+
+          droppable.addEventListener("keydown", function (event) {
+            if (event.target.classList.contains("editable-text") && event.keyCode === 13) {
+              event.preventDefault();
+              event.target.blur();
+            }
+          });
+        </script>
+
+        <div class="col-md6">
+          <div class="custom_heading-container" style="margin-bottom: 30px; margin-left: 64px;">
+            <h4> Operator list </h4>
+          </div>
+          <div class="list" id="operatorList">
+            <div class="item" draggable="true">?</div>
+            <div class="item" draggable="true">*</div>
+            <div class="item" draggable="true">+</div>
+          </div>
+        </div>
+      </div>
+      <script>
+        var list = document.getElementById("eventList");
+        var listOperators = document.getElementById("operatorList");
+        var droppable = document.getElementById("droppable");
+        // Add event listeners for drag and drop events
+        // Add event listeners for drag and drop events
+        list.addEventListener("dragstart", function (event) {
+          // Set the data being dragged
+          event.dataTransfer.setData("text/plain", event.target.innerText);
+          event.dataTransfer.setData("text/value", event.target.dataset.value);
+          // Add CSS styles to indicate the item is being dragged
+          event.target.style.opacity = "0.5";
+          // Add a custom data attribute to indicate the item is from list
+          event.dataTransfer.setData("data-from", "list");
+        });
+
+        // Add event listeners for drag and drop events
+        listOperators.addEventListener("dragstart", function (event) {
+          // Set the data being dragged
+          event.dataTransfer.setData("text/plain", event.target.innerText);
+          // Add CSS styles to indicate the item is being dragged
+          event.target.style.opacity = "0.5";
+          // Add a custom data attribute to indicate the item is from list
+          event.dataTransfer.setData("data-from", "listOperators");
+        });
+
+        list.addEventListener("dragend", function (event) {
+          // Remove CSS styles added in the dragstart event
+          event.target.style.opacity = "";
+        });
+
+        listOperators.addEventListener("dragend", function (event) {
+          // Remove CSS styles added in the dragstart event
+          event.target.style.opacity = "";
+        });
+
+        droppable.addEventListener("dragover", function (event) {
+          // Prevent default behavior to allow drop
+          event.preventDefault();
+        });
+
+        droppable.addEventListener("drop", function (event) {
+          // Get the dropped item
+          var droppedItem = event.target;
+          // Get the data being dropped
+          var data = event.dataTransfer.getData("text/plain");
+          var value = event.dataTransfer.getData("text/value");
+          // Get the data attribute of the dragged item
+          var from = event.dataTransfer.getData("data-from");
+          // Check if the dropped item is from the list or operators
+          if (event.target === droppable && from == "list") {
+            // Add a class to differentiate items from list
+            var item = document.createElement("div");
+            item.innerText = data;
+            item.classList.add("dropped-item");
+            item.classList.add("list-item");
+            item.setAttribute("data-value", value)
+            // Add trash icon
+            var trashIcon = document.createElement("span");
+            trashIcon.classList.add("trash-icon");
+            trashIcon.addEventListener("click", function () {
+              item.remove();
+            });
+            item.appendChild(trashIcon);
+            droppable.appendChild(item);
+          } else if (event.target.classList.contains("dropped-item") && event.target.classList.contains("list-item") && from == "list") {
+            // Combine items if dropped on a list item from list
+            event.target.innerText += " " + data;
+            event.target.setAttribute("data-value", event.target.dataset.value + " " + value)
+            event.target.classList.add("combined-item");
+            // Add trash icon
+            var trashIcon = document.createElement("span");
+            trashIcon.classList.add("trash-icon");
+            trashIcon.addEventListener("click", function () {
+              event.target.remove();
+            });
+            event.target.appendChild(trashIcon);
+          } else if (event.target.classList.contains("dropped-item") && event.target.classList.contains("list-item") && from == "listOperators") {
+            // Combine items if dropped on a list item from list
+            event.target.innerText = "(" + event.target.innerText + " )" + data;
+            event.target.setAttribute("data-value", "(" + event.target.dataset.value + " )" + data)
+            // Add trash icon
+            var trashIcon = document.createElement("span");
+            trashIcon.classList.add("trash-icon");
+            trashIcon.addEventListener("click", function () {
+              event.target.remove();
+            });
+            event.target.appendChild(trashIcon);
+
+          }
+        });
+      </script>
+      <div class="detail-box" style="display: flex; align-items: center; justify-content: center; margin-left: 25px;">
+        <div>
+          <button type="submit" class="btn btn-primary">Add custom event</button>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div id="responseMessage" style="margin-top: 30px;">
+          <!-- This message will be dynamically loaded -->
+        </div>
+      </div>
+
+      <script>
+        // Define the getCookie function
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+
+        const addButton = document.querySelector('.btn-primary');
+        addButton.addEventListener('click', function (event) {
+
+          var editableText = document.querySelector(".droppable .editable-text");
+          var newEventName = editableText.textContent;
+
+          // Get the droppable container
+          var droppable = document.getElementById("droppable");
+
+          // Get all the elements inside the droppable container
+          var items = droppable.querySelectorAll(".dropped-item");
+
+          // Create an array to store the inner texts
+          var texts = [];
+
+          // Loop through each element and get its inner text
+          for (var i = 0; i < items.length; i++) {
+            const value = items[i].dataset.value;
+            texts.push(value);
+          }
+
+          const dictToSend = {};
+          // Get the CSRF token from the cookie
+          const csrftoken = getCookie('csrftoken');
+          dictToSend["nameEvent"] = newEventName;
+          dictToSend["game"] = "{{game}}";
+          dictToSend["items"] = texts;
+
+          fetch("/createCustomEvent/", {
+            method: 'POST',
+            body: JSON.stringify(dictToSend),
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken
+            }
+          }).then(response => response.json())
+            .then(data => {
+              if (data.hasOwnProperty("error")) {
+                const message = document.querySelector("#responseMessage")
+                responseMessage.innerHTML = `<h3 style="color: red">${data.error}</h3>`;
+              } else if (data.hasOwnProperty("created")) {
+                const message = document.querySelector("#responseMessage")
+                responseMessage.innerHTML = `<h3 style="color: #2E86C1">New event "${data.eventName}" created: ${data.created}</h3>`;
+              } else if (data.hasOwnProperty("updated")) {
+                const message = document.querySelector("#responseMessage")
+                responseMessage.innerHTML = `<h3 style="color: #2E86C1">New event "${data.eventName}" updated: ${data.updated}</h3>`;
+              }
+            });
+
+        });
+
+      </script>
+    </div>
+    </div>
+  </section> {% endif %}
+  <!-- end service section -->
+  <!--problem section -->
+  <section class="problem_section layout_padding">
+    <div class="container">
+      <div class="custom_heading-container">
+        <h2> Want to know more about our research ? </h2>
+      </div>
+      <div class="layout_padding2">
+        <div class="detail-box">
+          <div>
+            <a href="https://www.manueljgomez.es/publication.html"> Read More </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- end problem section -->
+  <!-- why section -->
+  <!-- end contact section -->
+  <div class="footer_bg">
+    <!-- info section -->
+    <section class="info_section layout_padding2-bottom">
+      <div class="container">
+        <h3 class=""> GBA Labeling Tool </h3>
+      </div>
+    </section>
+    <!-- end info_section -->
+    <!-- footer section -->
+  </div>
+  <script type="text/javascript" src="/static/replay/js/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="/static/replay/js/bootstrap.js"></script>
+</body>
+
+</html>

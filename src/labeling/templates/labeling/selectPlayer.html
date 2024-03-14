@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <title>GBA labelling</title>
+
+  <style>
+    .whiteTextOverride {
+      color: white !important;
+      margin-left: 100px;
+    }
+
+    .options-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .option-box {
+      margin: 20px;
+      position: relative;
+      width: 175px;
+      height: 175px;
+      overflow: hidden;
+    }
+
+    .option-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      background-color: #E28DA9;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .option-circle:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .option-text {
+      font-size: 12px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #fff;
+    }
+
+    .modal-content {
+      background-color: #f8f9fa;
+      color: #000;
+    }
+
+    .modal-header {
+      background-color: #E28DA9;
+      color: #fff;
+      border-bottom: none;
+    }
+
+    .modal-title {
+      margin-bottom: 0;
+    }
+
+    .modal-body {
+      padding: 30px;
+    }
+
+    .modal-footer {
+      border-top: none;
+    }
+  </style>
+
+  <!-- slider stylesheet -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="/static/replay/css/bootstrap.css" />
+
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&amp;display=swap"
+    rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="/static/replay/css/style.css" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="/static/replay/css/responsive.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="hero_area">
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-8">
+            <nav class="navbar navbar-expand-lg custom_nav-container ">
+              <a class="navbar-brand" href="/login">
+                <span>
+                  GBA Labeling Tool
+                </span>
+              </a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="d-flex  flex-column flex-lg-row align-items-center">
+                  <ul class="navbar-nav  ">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="/tag"> Replay selection <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/play">Play </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/addCompetence">Add new labels/values</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- end header section -->
+
+
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        {% if error %}
+        <div class="container2">
+          <div class="row">
+            <div class="col-lg-6 col-md-5" style="margin-top: 50px">
+              <div class="slider_detail-box">
+                <div class="whiteTextOverride">
+                  <h1>{{game}}</h1>
+                  <h1>{{error}}</h1>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <div class="container2">
+              <div class="row">
+                <div class="col-lg-6 col-md-5" style="margin-top: 50px">
+                  <div class="slider_detail-box">
+                    <div class="whiteTextOverride">
+
+                      <h1>{{game}} - {{group}} </h1>
+                      <h1>Select a player.</h1>
+                    </div>
+                  </div>
+                </div>
+
+                {% if typeReplay == "textReplay" %}
+                <div class="col-lg-2 col-md-1" style="margin-top: 80px; margin-left: 480px;">
+                  <button id="buttonAddCustomEvents" type="submit" class="btn btn-secondary" style=" width: 200px;">Add
+                    custom events</button>
+                  <button id="buttonRenameEvents" type="submit" class="btn btn-secondary"
+                    style="margin-top:10px;  width: 200px;">Rename events</button>
+                  <button id="buttonExportData" type="submit" class="btn btn-secondary"
+                    style=" width: 200px; margin-top: 10px;" data-toggle="modal" data-target="#loginModal">Export
+                    data</button>
+                </div>
+
+                <script>
+                  const buttonAddCustomEvents = document.getElementById("buttonAddCustomEvents");
+                  buttonAddCustomEvents.addEventListener('click', function (event) {
+                    window.location.href = "/addCustomEvents/{{game}}";
+                  });
+
+                  const buttonRenameEvents = document.getElementById("buttonRenameEvents");
+                  buttonRenameEvents.addEventListener('click', function (event) {
+                    window.location.href = "/renameEvents/{{game}}";
+                  });
+
+                </script>
+
+                {% else %}
+                <div class="col-lg-2 col-md-1" style="margin-top: 80px; margin-left: 480px;">
+                  <button id="buttonExportData" type="submit" class="btn btn-secondary"
+                    style=" width: 200px; margin-top: 10px;" data-toggle="modal" data-target="#loginModal">Export
+                    data</button>
+                </div>
+                {% endif %}
+
+              </div>
+              <div class="row" style="height: 566px; overflow-y: scroll;">
+                <div class="col-lg-12 col-md-20" style="margin-top: 0px">
+                  <div class="slider_detail-box">
+                    <!-- slider section -->
+                    <div class="options-container">
+                      {% for key, value in items.items %}
+                      <div class="option-box">
+                        <a href="/selectUser/{{game}}/{{group}}/{{ value }}">
+                          <div class="option-circle">
+                            <span class="option-text">{{ value }}</span>
+                          </div>
+                        </a>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    <!-- end slider section -->
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Data export</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <h4>Export data from user {{username}}, game {{game}} and group {{group}}.</h4>
+
+                      <form id="formatForm">
+                        <p>Choose the desired format:</p>
+                        <label>
+                          <input type="radio" name="option" value="csv">
+                          CSV
+                        </label>
+                        <label>
+                          <input type="radio" name="option" value="json">
+                          JSON
+                        </label>
+                      </form>
+
+                      <button type="submit" id="exportConfirmButton" class="btn btn-secondary"
+                        style="margin-left: 160px; margin-top: 10px;">Export data</button>
+                      <small id="usernameHelp" class="form-text text-muted" style="margin-top: 20px;">Exported data will
+                        open in a new tab.</small>
+                    </div>
+                    <script>
+                      // Define the getCookie function
+                      function getCookie(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                          const cookies = document.cookie.split(';');
+                          for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                              break;
+                            }
+                          }
+                        }
+                        return cookieValue;
+                      }
+
+                      const exportButton = document.getElementById("exportConfirmButton");
+                      exportButton.addEventListener('click', function (event) {
+                        const formFormat = document.getElementById("formatForm");
+                        const selectedOption = formFormat.elements.option.value;
+                        const dictToSend = {};
+                        dictToSend["format"] = selectedOption;
+                        dictToSend["game"] = "{{game}}";
+                        dictToSend["group"] = "{{group}}";
+                        // Get the CSRF token from the cookie
+                        const csrftoken = getCookie('csrftoken');
+
+                        fetch("/generateOutput/", {
+                          method: 'POST',
+                          body: JSON.stringify(dictToSend),
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                          }
+                        }).then(response => {
+                          if (selectedOption == "json") {
+                            return response.json();
+                          } else if (selectedOption == "csv") {
+                            return response.text();
+                          }
+
+                        })
+                          .then(data => {
+                            if (selectedOption == "json") {
+                              // Create a new Blob object containing the JSON data
+                              const blob = new Blob([JSON.stringify(data.events)], { type: "application/json" });
+                              // Create a new URL for the Blob object
+                              const url = URL.createObjectURL(blob);
+                              // Open the URL in a new tab
+                              window.open(url);
+                            } else if (selectedOption == "csv") {
+                              // Create a new Blob object containing the JSON data
+                              const blob = new Blob([data], { type: "application/json" });
+                              // Create a new URL for the Blob object
+                              const url = URL.createObjectURL(blob);
+                              // Open the URL in a new tab
+                              window.open(url);
+                            }
+
+
+                          });
+                      });
+                    </script>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <section class="problem_section layout_padding5">
+        <div class="layout_padding5">
+          <div class="detail-box">
+            <div>
+              {% if game %}
+              <a href="/selectGame/{{game}}/">
+                {% else %}
+                <a href="/tag">
+                  {% endif %}
+                  Return to group selection
+                </a>
+            </div>
+          </div>
+      </section>
+
+
+      <!-- end service section -->
+      <!--problem section -->
+      <section class="problem_section layout_padding">
+        <div class="container">
+          <div class="custom_heading-container">
+            <h2>
+              Want to know more about our research ?
+            </h2>
+          </div>
+          <div class="layout_padding2">
+            <div class="detail-box">
+              <div>
+                <a href="https://www.manueljgomez.es/publication.html">
+                  Read More
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      <!-- end problem section -->
+      <!-- why section -->
+
+
+      <!-- end contact section -->
+      <div class="footer_bg">
+        <!-- info section -->
+        <section class="info_section layout_padding2-bottom">
+          <div class="container">
+            <h3 class="">
+              GBA Labeling Tool
+            </h3>
+          </div>
+
+        </section>
+
+        <!-- end info_section -->
+        <!-- footer section -->
+      </div>
+
+
+      <script type="text/javascript" src="/static/replay/js/jquery-3.4.1.min.js"></script>
+      <script type="text/javascript" src="/static/replay/js/bootstrap.js"></script>
+
+
+
+</body>
+
+</html>

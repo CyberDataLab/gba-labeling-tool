@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <title>Add new schemes</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    iframe {
+      border: none;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <!-- slider stylesheet -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="/static/replay/css/bootstrap.css" />
+
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&amp;display=swap"
+    rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="/static/replay/css/style.css" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="/static/replay/css/responsive.css" rel="stylesheet" />
+</head>
+
+<body class="sub_page">
+  <div class="hero_area">
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-8">
+            <nav class="navbar navbar-expand-lg custom_nav-container ">
+              <a class="navbar-brand" href="/login">
+                <span>
+                  GBA Labeling Tool
+                </span>
+              </a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="d-flex  flex-column flex-lg-row align-items-center">
+                  <ul class="navbar-nav  ">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="/tag"> Replay selection</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/play">Play <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/addCompetence">Add new labels/values</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- end header section -->
+  </div>
+
+
+  <!-- tagger section -->
+  {% if errorUser %}
+
+  <section class="problem_section layout_padding">
+    <div class="container">
+      <h2>
+        User not found. Please, log in first.
+      </h2>
+    </div>
+  </section>
+
+  {% else %}
+  <section class="problem_section layout_padding">
+    <div class="container">
+      <div class="custom_heading-container" style="margin-bottom: 30px;">
+        <h2>
+          Add a new value in an existing label
+        </h2>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="form-group">
+              <label for="inputState">Select a label</label>
+              <select id="inputState" class="form-control">
+                {% for option in competences %}
+                <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <form id="secondForm">
+            <div class="form-group">
+              <label for="newOption">New value to be added</label>
+              <input type="text" class="form-control" id="inputTag" placeholder="New Value" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        {% if successCreatingTag %}
+        <h3>{{ successCreatingTag }}</h3>
+        {% elif errorTagExisting %}
+        <h3 style="color: red">{{ errorTagExisting }}</h3>
+        {% endif %}
+      </div>
+
+      <div class="detail-box" style="margin-top: 0px;">
+        <div>
+          <form method="POST" action="{% url 'addCompetence' %}" id="tagForm">
+            {% csrf_token %}
+            <input type="hidden" name="newTagName" value="" id="inputTagHidden">
+            <button type="submit" class="btn btn-primary">Add value</button>
+          </form>
+        </div>
+      </div>
+
+      <script>
+        const form = document.getElementById("tagForm");
+        form.addEventListener("submit", (event) => {
+          event.preventDefault(); // prevent form submission
+          const inputCompTag = document.getElementById("inputState").value;
+          const inputTag = document.getElementById("inputTag");
+          const value = inputCompTag + "~" + inputTag.value;
+          inputTag.value = ""; // clear the input field
+          const inputTagHidden = document.getElementById("inputTagHidden");
+          inputTagHidden.value = value; // set the value to the hidden input field
+          form.submit(); // submit the form
+        });
+
+        const inputTag = document.getElementById("inputTag");
+        inputTag.addEventListener("keydown", (event) => {
+          if (event.keyCode === 13) { // check if Enter key was pressed
+            event.preventDefault(); // prevent default behavior
+            const inputCompTag = document.getElementById("inputState").value;
+            const inputTag = document.getElementById("inputTag");
+            const value = inputCompTag + "~" + inputTag.value;
+            inputTag.value = ""; // clear the input field
+            const inputTagHidden = document.getElementById("inputTagHidden");
+            inputTagHidden.value = value; // set the value to the hidden input field
+            form.submit(); // submit the form
+          }
+        });
+
+      </script>
+
+      <div class="custom_heading-container" style="margin-bottom: 50px; margin-top: 50px;">
+        <h2>
+          or add a new label
+        </h2>
+      </div>
+
+      <div class="row" style="margin-bottom: 0px;">
+        <div class="col-md-12">
+          <form id="thirdForm">
+            <div class="form-group">
+              <label for="newCompetence">New label to be added</label>
+              <input type="text" class="form-control" id="inputCompetence" placeholder="New label" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        {% if successCreatingCompetence %}
+        <h3>{{ successCreatingCompetence }}</h3>
+        {% elif errorCompetenceExisting %}
+        <h3 style="color: red">{{ errorCompetenceExisting }}</h3>
+        {% endif %}
+      </div>
+
+      <div class="detail-box" style="margin-top: 0px;">
+        <div>
+          <form method="POST" action="{% url 'addCompetence' %}" id="competenceForm">
+            {% csrf_token %}
+            <input type="hidden" name="newCompetenceName" value="" id="inputCompetenceHidden">
+            <button type="submit" class="btn btn-primary">Add label</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const formComp = document.getElementById("competenceForm");
+    formComp.addEventListener("submit", (event) => {
+      event.preventDefault(); // prevent form submission
+      const inputComp = document.getElementById("inputCompetence");
+      const value = inputComp.value;
+      inputComp.value = ""; // clear the input field
+      const inputCompetenceHidden = document.getElementById("inputCompetenceHidden");
+      inputCompetenceHidden.value = value; // set the value to the hidden input field
+      formComp.submit(); // submit the form
+    });
+
+    const inputCompetence = document.getElementById("inputCompetence");
+    inputCompetence.addEventListener("keydown", (event) => {
+      if (event.keyCode === 13) { // check if Enter key was pressed
+        event.preventDefault(); // prevent form submission
+        const inputComp = document.getElementById("inputCompetence");
+        const value = inputComp.value;
+        inputComp.value = ""; // clear the input field
+        const inputCompetenceHidden = document.getElementById("inputCompetenceHidden");
+        inputCompetenceHidden.value = value; // set the value to the hidden input field
+        formComp.submit(); // submit the form
+      }
+    });
+
+  </script>
+  {% endif %}
+  <!-- end tagger section -->
+
+  <!-- end service section -->
+  <!--problem section -->
+  <section class="problem_section layout_padding">
+    <div class="container">
+      <div class="custom_heading-container">
+        <h2>
+          Want to know more about our research ?
+        </h2>
+      </div>
+      <div class="layout_padding2">
+        <div class="detail-box">
+          <div>
+            <a href="https://www.manueljgomez.es/publication.html">
+              Read More
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!-- end problem section -->
+  <!-- why section -->
+
+
+  <!-- end contact section -->
+  <div class="footer_bg">
+    <!-- info section -->
+    <section class="info_section layout_padding2-bottom">
+      <div class="container">
+        <h3 class="">
+          GBA Labeling Tool
+        </h3>
+      </div>
+
+    </section>
+
+    <!-- end info_section -->
+    <!-- footer section -->
+  </div>
+
+
+  <script type="text/javascript" src="/static/replay/js/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="/static/replay/js/bootstrap.js"></script>
+
+
+
+</body>
+
+</html>

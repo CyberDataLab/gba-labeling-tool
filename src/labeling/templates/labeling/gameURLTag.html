@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <title>Play Your_game</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    iframe {
+      border: none;
+      height: 100%;
+      width: 100%;
+    }
+
+  </style>
+
+  <!-- slider stylesheet -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="/static/replay/css/bootstrap.css" />
+
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&amp;display=swap"
+    rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="/static/replay/css/style.css" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="/static/replay/css/responsive.css" rel="stylesheet" />
+</head>
+
+<body class="sub_page">
+  <div class="hero_area" style="height: 850px;">
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-8">
+            <nav class="navbar navbar-expand-lg custom_nav-container ">
+              <a class="navbar-brand" href="/login">
+                <span>
+                  GBA Labeling Tool
+                </span>
+              </a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="d-flex  flex-column flex-lg-row align-items-center">
+                  <ul class="navbar-nav  ">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="/tag"> Replay selection</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/play">Play <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/addCompetence">Add new labels/values</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- end header section -->
+
+    <!-- slider section -->
+    <script src="your_path/TemplateData/UnityProgress.js"></script>
+    <script src="your_path/Build/UnityLoader.js"></script>
+    <script>
+      var gameInstance = UnityLoader.instantiate("gameContainer", "your_path/Build/your_file.json", { onProgress: UnityProgress });
+    </script>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="container">
+          <div class="row" style="width: 2220px;">
+            <div class="col-lg-6 col-md-10" style="margin-top: 50px; margin-left: -100px;">
+              <div class="webgl-content">
+                <div id="gameContainer" style="width: 1080px; height: 620px"></div>
+                <div class="footer">
+                  <div class="webgl-logo"></div>
+                  <div class="fullscreen" onclick="gameInstance.SetFullscreen(1)"></div>
+                  <div class="title">Your_game</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-2" style="height: 700px; margin-top: 50px; margin-left: 30px; overflow-y: auto;">
+              <h4 style="color: white;"><b>Context features</b></h4>
+              {% for key, value in contextFeatures.items %}
+              <p style="color: white;"><b>{{ key }}</b>: {{ value }}</p>
+              {% endfor %}
+              <h4 style="color: white;"><b>Attempt features</b></h4>
+              {% for key, value in attemptFeatures.items %}
+              <p style="color: white;"><b>{{ key }}</b>: {{ value }}</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end slider section -->
+  </div>
+
+  <!-- tagger section -->
+  <section class="problem_section layout_padding">
+    <div class="container" style="margin-bottom: 0px;">
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="form-group">
+              <label for="inputState">Select a label to tag</label>
+              <select id="inputState" class="form-control">
+                <option value="" selected></option>
+                {% for option in competences %}
+                <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <form id="secondForm">
+            <!-- This form will be dynamically loaded based on the selected option -->
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div id="responseMessage" style="margin-top: 30px;">
+          <!-- This message will be dynamically loaded -->
+        </div>
+      </div>
+
+      <div class="detail-box" style="margin-top: 30px;">
+        <div>
+          <button type="submit" class="btn btn-primary">Add tag</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    // Define the getCookie function
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+
+    const addButton = document.querySelector('.btn-primary');
+    addButton.addEventListener('click', function (event) {
+      // Code to handle the click event
+      // Get the first form and the second form
+      const firstForm = document.getElementById("inputState");
+      const secondForm = document.getElementById("secondInput");
+      const message = document.querySelector("#responseMessage")
+      if (secondForm != null) {
+        if ((secondForm.value == "") | (firstForm.value == "")) {
+          responseMessage.innerHTML = `<h3 style="color: red">Select a valid tag</h3>`;
+        } else {
+          const dictToSend = {};
+          // Get the CSRF token from the cookie
+          const csrftoken = getCookie('csrftoken');
+          dictToSend["username"] = "{{username}}";
+          dictToSend["game"] = "{{game}}";
+          dictToSend["group"] = "{{group}}";
+          dictToSend["player"] = "{{player}}";
+          dictToSend["replay"] = "{{replay}}";
+          console.log(dictToSend["replay"])
+          dictToSend["competence"] = firstForm.value;
+          dictToSend["tag"] = secondForm.value;
+          fetch("/addTag/", {
+            method: 'POST',
+            body: JSON.stringify(dictToSend),
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken
+            }
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.hasOwnProperty("tagCreated")) {
+                responseMessage.innerHTML = `<h4>Competence \"${data.tagCreated[1]}\" tagged in replay ${data.tagCreated[0]} with tag \"${data.tagCreated[2]}\" </h4>`;
+              } else if (data.hasOwnProperty("tagUpdated")) {
+                responseMessage.innerHTML = `<h4>Competence \"${data.tagUpdated[1]}\" updated in replay ${data.tagUpdated[0]} with tag \"${data.tagUpdated[2]}\" </h4>`;
+              } else {
+                responseMessage.innerHTML = `<h4 style="color: red"> ${data.errorUser} </h4>`;
+              }
+
+            })
+            .catch(error => {
+              responseMessage.innerHTML = `<h3 style="color: red">${error}</h3>`;
+            });
+        }
+      } else {
+        responseMessage.innerHTML = `<h3 style="color: red">Select a valid tag</h3>`;
+      }
+    });
+  </script>
+
+
+  <script>
+    // Get the first form and the second form
+    const firstForm = document.querySelector('#inputState');
+    const secondForm = document.querySelector('#secondForm');
+    // Listen for changes in the first form
+    firstForm.addEventListener('change', (event) => {
+      const selectedOption = event.target.value;
+      // Load the second form based on the selected option
+      fetch(`/get_options/${selectedOption}`)
+        .then(response => response.json())
+        .then(data => {
+          secondForm.innerHTML = `
+      <div class="form-group">
+        <label for="secondInput">Select {{selectedOption}} value:</label>
+        <select id ="secondInput" class="form-control" name="secondInput">
+            ${data.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+        </select>
+      </div>`;
+        });
+    });
+
+    //Listen for changes in submit button
+
+  </script>
+
+  <!-- end tagger section -->
+
+
+  <section class="problem_section layout_padding5">
+    <div class="layout_padding5">
+      <div class="detail-box">
+        <div>
+          <a href="/selectUser/{{game}}/{{group}}/{{player}}/">
+            Return to replay loader
+          </a>
+        </div>
+      </div>
+  </section>
+
+  <!-- end service section -->
+  <!--problem section -->
+  <section class="problem_section layout_padding">
+    <div class="container">
+      <div class="custom_heading-container">
+        <h2>
+          Want to know more about our research ?
+        </h2>
+      </div>
+      <div class="layout_padding2">
+        <div class="detail-box">
+          <div>
+            <a href="https://www.manueljgomez.es/publication.html">
+              Read More
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!-- end problem section -->
+  <!-- why section -->
+
+
+  <!-- end contact section -->
+  <div class="footer_bg">
+    <!-- info section -->
+    <section class="info_section layout_padding2-bottom">
+      <div class="container">
+        <h3 class="">
+          GBA Labeling Tool
+        </h3>
+      </div>
+
+    </section>
+
+    <!-- end info_section -->
+    <!-- footer section -->
+  </div>
+
+
+  <script type="text/javascript" src="/static/replay/js/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="/static/replay/js/bootstrap.js"></script>
+
+
+
+</body>
+
+</html>

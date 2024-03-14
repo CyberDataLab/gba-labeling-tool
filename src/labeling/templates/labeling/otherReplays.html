@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Play Shadowspect</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    iframe {
+      border: none;
+      height: 100%;
+      width: 100%;
+    }
+
+    .btn-primary {
+      margin-top: 20px;
+      margin-right: 40px;
+      border-radius: 5px;
+      /* add any other styles you want here */
+    }
+  </style>
+  <!-- slider stylesheet -->
+  <script src="https://unpkg.com/wavesurfer.js/dist/wavesurfer.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    function setInnerHTML(elm, html) {
+      elm.innerHTML = html;
+      Array.from(elm.querySelectorAll("script")).forEach(oldScriptEl => {
+        const newScriptEl = document.createElement("script");
+        Array.from(oldScriptEl.attributes).forEach(attr => {
+          newScriptEl.setAttribute(attr.name, attr.value)
+        });
+        const scriptText = document.createTextNode(oldScriptEl.innerHTML);
+        newScriptEl.appendChild(scriptText);
+        oldScriptEl.parentNode.replaceChild(newScriptEl, oldScriptEl);
+      });
+    }
+  </script>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="/static/replay/css/bootstrap.css" />
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&amp;display=swap"
+    rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="/static/replay/css/style.css" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="/static/replay/css/responsive.css" rel="stylesheet" />
+</head> {% if typeReplay == "audioReplay" or typeReplay == "textReplay" %}
+
+<body class="sub_page"> {% else %}
+
+  <body> {% endif %} <div class="hero_area">
+      <!-- header section strats -->
+      <header class="header_section">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-8">
+              <nav class="navbar navbar-expand-lg custom_nav-container ">
+                <a class="navbar-brand" href="/login">
+                  <span> GBA Labeling Tool </span>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                  data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                  aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <div class="d-flex  flex-column flex-lg-row align-items-center">
+                    <ul class="navbar-nav  ">
+                      <li class="nav-item active">
+                        <a class="nav-link" href="/tag"> Replay selection</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="/play">Play <span class="sr-only">(current)</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="/addCompetence">Add new labels/values</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </header>
+      <!-- end header section -->
+      <!-- slider section -->
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="container">
+            <div class="col-lg-1 col-md-5" style="margin-top: 10px; margin-left: 50px;"> 
+            {% if typeReplay == "videoReplay" %} <video id="replayVideo" width="960" height="680" controls>
+                <source src="/static/replay/replayFiles/{{game}}/{{group}}~{{player}}/{{replayFile}}.mp4"
+                  type="video/mp4"> Your browser does not support the video tag.
+              </video> {% elif typeReplay == "textReplay" %}
+              <div class="row" id="rowDisplay" style="height: 700px; width: 800px; overflow-y: auto;">
+
+                <div id="text-container" data-text="{{textReplay}}"
+                  style="margin-top: 80px; font-size: 20px; color: white;"></div>
+              </div>
+              <script>
+                const textContainer = document.getElementById("text-container");
+                const formattedText = textContainer.getAttribute("data-text").replace(/\n/g, " <br> ");
+                textContainer.innerHTML = formattedText;
+              </script> {% elif typeReplay == "audioReplay" %} <div class="col-lg-1 col-md-5"
+                style="margin-top: 100px; margin-bottom: 100px;">
+                <div id="waveform" style="height: 250px; width: 900px;">
+                  <source id=waveFormSrc
+                    src="/static/replay/replayFiles/{{game}}/{{group}}~{{player}}/{{replayFile}}.mp3" type="audio/mp3">
+                </div>
+                <div id="zoomContainer">
+                  <input type="range" id="zoom-slider" name="zoom-slider" min="1" max="200" value="1">
+                </div>
+              </div> {% endif %}
+            </div>
+          </div>
+        </div> {% if typeReplay == "textReplay" %}
+
+        <div class="col-md-6" style="margin-left: 80px; margin-top: 0px;">
+          <div class="col-lg-6" id="textFeatures" style="margin-top: 10px; margin-left: 1000px;">
+            <h4 style="color: white;"><b>Context features</b></h4>
+            {% for key, value in contextFeatures.items %}
+            <p style="color: white;"><b>{{ key }}</b>: {{ value }}</p>
+            {% endfor %}
+            <h4 style="color: white;"><b>Attempt features</b></h4>
+            {% for key, value in attemptFeatures.items %}
+            <p style="color: white;"><b>{{ key }}</b>: {{ value }}</p>
+            {% endfor %}
+          </div>
+          <div class="detail-box" style="margin-top: 70px; margin-left: 980px; width: 300px;">
+            <div>
+              <button id="buttonCollapse" type="submit" class="btn btn-secondary">Collapse/Uncollapse events</button>
+            </div>
+          </div>
+          <div class="detail-box" style="margin-top: 10px; margin-left: 1000px; width: 300px;">
+            <div>
+              <button id="buttonCustomEvents" type="submit" class="btn btn-secondary">Replace custom events</button>
+            </div>
+          </div>
+          <div id="buttonVisualBox" class="detail-box"
+            style="margin-top: 10px; margin-left: 1020px; margin-bottom: 30px; width: 200px;">
+            <div>
+              <button id="buttonVisualMode" type="submit" class="btn btn-secondary">Text/Visual mode</button>
+            </div>
+          </div>
+        </div> {% endif %}
+      </div>
+      <!-- end slider section -->
+    </div>
+    <script>
+      function sendCollapseRequest(customized) {
+        const csrftoken = getCookie('csrftoken');
+        dictToSend["game"] = "{{game}}";
+        dictToSend["group"] = "{{group}}";
+        dictToSend["user"] = "{{player}}";
+        dictToSend["replay"] = "{{replay}}";
+        dictToSend["customized"] = customized;
+        fetch("/getCollapsedEvents/", {
+          method: 'POST',
+          body: JSON.stringify(dictToSend),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          }
+        }).then(response => response.json()).then(data => {
+          const text = data.textCollapsed;
+          const textContainer = document.getElementById("text-container");
+          const formattedText = text.replace(/\n/g, " <br> ");
+          textContainer.innerHTML = formattedText;
+          if (customized == true) {
+            reTextCollapsed = formattedText;
+          } else {
+            newText = formattedText;
+          }
+        });
+      }
+
+      function sendTextCustomRequest() {
+        const csrftoken = getCookie('csrftoken');
+        dictToSend["game"] = "{{game}}";
+        dictToSend["group"] = "{{group}}";
+        dictToSend["user"] = "{{player}}";
+        dictToSend["replay"] = "{{replay}}";
+        fetch("/getTextReplayCustom/", {
+          method: 'POST',
+          body: JSON.stringify(dictToSend),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          }
+        }).then(response => response.json()).then(data => {
+          const text = data.textCustom;
+          const textContainer = document.getElementById("text-container");
+          const formattedText = text.replace(/\n/g, " <br> ");
+          textContainer.innerHTML = formattedText; reText = formattedText;
+        });
+      }
+
+      var collapsed = false;
+      var customized = false;
+      if ("{{typeReplay}}" == "audioReplay") {
+        var wavesurfer = WaveSurfer.create({
+          container: '#waveform',
+          backend: 'MediaElement',
+          mediaControls: true,
+          waveColor: 'grey',
+          progressColor: '#4169E1',
+          cursorColor: '#4169E1'
+        });
+        var audioSrc = document.querySelector('#waveFormSrc');
+        wavesurfer.load(audioSrc.src);
+        document.querySelector('#zoom-slider').oninput = function () {
+          wavesurfer.zoom(Number(this.value));
+        };
+      } else if ("{{typeReplay}}" == "textReplay") {
+        var oldText = document.getElementById("text-container").innerHTML;
+        var newText = null;
+        var reText = null;
+        var reTextCollapsed = null;
+        const addButton = document.querySelector('#buttonCollapse');
+        addButton.addEventListener('click', function (event) {
+          dictToSend = {}
+          if ((collapsed == false) && (customized == false)) {
+            if (newText == null) {
+              sendCollapseRequest(customized = false);
+            }
+            else {
+              const textContainer = document.getElementById("text-container");
+              textContainer.innerHTML = newText;
+            }
+            collapsed = true;
+          } else if ((collapsed == true) && (customized == false)) {
+            const textContainer = document.getElementById("text-container");
+            textContainer.innerHTML = oldText;
+            collapsed = false;
+          } else if ((collapsed == false) && (customized == true)) {
+            if (reTextCollapsed == null) {
+              sendCollapseRequest(customized = true);
+            }
+            else {
+              const textContainer = document.getElementById("text-container");
+              textContainer.innerHTML = reTextCollapsed;
+            }
+            collapsed = true;
+            customized = true;
+          } else { //collapsed = true customized = true
+            if (reText == null) {
+              sendTextCustomRequest();
+            } else {
+              const textContainer = document.getElementById("text-container");
+              textContainer.innerHTML = reText;
+            }
+            collapsed = false;
+          }
+        });
+
+        const customButton = document.querySelector('#buttonCustomEvents');
+        customButton.addEventListener('click', function (event) {
+          dictToSend = {}
+          if ((customized == false) && (collapsed == false)) {
+            if (reText == null) {
+              sendTextCustomRequest();
+            } else {
+              const textContainer = document.getElementById("text-container");
+              textContainer.innerHTML = reText;
+            }
+            customized = true;
+          } else if ((customized == true) && (collapsed == false)) {
+            const textContainer = document.getElementById("text-container");
+            textContainer.innerHTML = oldText;
+            customized = false;
+          } else if ((customized == false) && (collapsed == true)) {
+            if (reTextCollapsed == null) {
+              sendCollapseRequest(customized = true);
+            } else {
+              const textContainer = document.getElementById("text-container");
+              textContainer.innerHTML = reTextCollapsed;
+            }
+            collapsed = true;
+            customized = true;
+          } else { // collapsed = true and customized = true
+            if (newText == null) {
+              sendCollapseRequest(customized = false);
+            } else {
+              const textContainer = document.getElementById("text-container");
+              textContainer.innerHTML = newText;
+            }
+            customized = false;
+          }
+        });
+
+        var plotReplay = null;
+        var plotReplayCustom = null;
+        var visualized = false;
+        const visualButton = document.querySelector('#buttonVisualMode'); visualButton.addEventListener('click', function (event) {
+          dictToSend = {}
+          if ((visualized == false) && (customized == false)) {
+            if (plotReplay == null) {
+              const csrftoken = getCookie('csrftoken');
+              dictToSend["game"] = "{{game}}";
+              dictToSend["group"] = "{{group}}";
+              dictToSend["user"] = "{{player}}";
+              dictToSend["replay"] = "{{replay}}";
+              dictToSend["customized"] = customized;
+              fetch("/getReplayPlot/", {
+                method: 'POST',
+                body: JSON.stringify(dictToSend),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrftoken
+                }
+              }).then(response => response.text()).then(data => {
+
+                plotReplay = data;
+                const imageContainer = document.getElementById("text-container");
+                imageContainer.style["margin-left"] = "0px";
+                imageContainer.style["margin-top"] = "0px";
+                setInnerHTML(imageContainer, data);
+                //const gameImage = document.getElementById("gameImage");
+                //gameImage.style["visibility"] = "hidden";
+                const textFeatures = document.getElementById("textFeatures");
+                textFeatures.style["visibility"] = "hidden";
+                const buttonCollapse = document.getElementById("buttonCollapse");
+                buttonCollapse.style["visibility"] = "hidden";
+                const buttonCustomized = document.getElementById("buttonCustomEvents");
+                buttonCustomized.style["visibility"] = "hidden";
+              });
+            } else {
+              const imageContainer = document.getElementById("text-container");
+              setInnerHTML(imageContainer, plotReplay);
+              imageContainer.style["margin-left"] = "0px";
+              imageContainer.style["margin-top"] = "0px";
+              //const gameImage = document.getElementById("gameImage");
+              //gameImage.style["visibility"] = "hidden";
+              const textFeatures = document.getElementById("textFeatures");
+              textFeatures.style["visibility"] = "hidden";
+              const buttonCollapse = document.getElementById("buttonCollapse");
+              buttonCollapse.style["visibility"] = "hidden";
+              const buttonCustomized = document.getElementById("buttonCustomEvents");
+              buttonCustomized.style["visibility"] = "hidden";
+            }
+            visualized = true;
+          } else if ((visualized == true) && (customized == false)) {
+            const textContainer = document.getElementById("text-container");
+            textContainer.style["margin-left"] = "0px";
+            textContainer.style["margin-top"] = "80px";
+            textContainer.innerHTML = oldText;
+            //const gameImage = document.getElementById("gameImage");
+            //gameImage.style["visibility"] = "visible";
+            const buttonCollapse = document.getElementById("buttonCollapse");
+            buttonCollapse.style["visibility"] = "visible";
+            const textFeatures = document.getElementById("textFeatures");
+            textFeatures.style["visibility"] = "visible";
+            const buttonCustomized = document.getElementById("buttonCustomEvents");
+            buttonCustomized.style["visibility"] = "visible";
+            visualized = false;
+          } else if ((visualized == false) && (customized == true)) {
+            if (plotReplayCustom == null) {
+              const csrftoken = getCookie('csrftoken');
+              dictToSend["game"] = "{{game}}";
+              dictToSend["group"] = "{{group}}";
+              dictToSend["user"] = "{{player}}";
+              dictToSend["replay"] = "{{replay}}";
+              dictToSend["customized"] = customized;
+              fetch("/getReplayPlot/", {
+                method: 'POST',
+                body: JSON.stringify(dictToSend),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrftoken
+                }
+              }).then(response => response.text()).then(data => {
+
+                plotReplayCustom = data;
+                const imageContainer = document.getElementById("text-container");
+                imageContainer.style["margin-left"] = "0px";
+                imageContainer.style["margin-top"] = "0px";
+                setInnerHTML(imageContainer, data);
+                //const gameImage = document.getElementById("gameImage");
+                //gameImage.style["visibility"] = "hidden";
+                const buttonCollapse = document.getElementById("buttonCollapse");
+                buttonCollapse.style["visibility"] = "hidden";
+                const buttonCustomized = document.getElementById("buttonCustomEvents");
+                buttonCustomized.style["visibility"] = "hidden";
+                const textFeatures = document.getElementById("textFeatures");
+                textFeatures.style["visibility"] = "hidden";
+              });
+            } else {
+              const imageContainer = document.getElementById("text-container");
+              setInnerHTML(imageContainer, plotReplayCustom);
+              imageContainer.style["margin-left"] = "0px";
+              imageContainer.style["margin-top"] = "0px";
+              //const gameImage = document.getElementById("gameImage");
+              //gameImage.style["visibility"] = "hidden";
+              const buttonCollapse = document.getElementById("buttonCollapse");
+              buttonCollapse.style["visibility"] = "hidden";
+              const textFeatures = document.getElementById("textFeatures");
+              textFeatures.style["visibility"] = "hidden";
+              const buttonCustomized = document.getElementById("buttonCustomEvents");
+              buttonCustomized.style["visibility"] = "hidden";
+            }
+            visualized = true;
+          } else {
+            const textContainer = document.getElementById("text-container");
+            textContainer.style["margin-left"] = "0px";
+            textContainer.style["margin-top"] = "80px";
+            if (reText != null) {
+              textContainer.innerHTML = reText;
+            } else {
+              textContainer.innerHTML = reTextCollapsed;
+            }
+            //const gameImage = document.getElementById("gameImage");
+            //gameImage.style["visibility"] = "visible";
+            const buttonCollapse = document.getElementById("buttonCollapse");
+            buttonCollapse.style["visibility"] = "visible";
+            const buttonCustomized = document.getElementById("buttonCustomEvents");
+            buttonCustomized.style["visibility"] = "visible";
+            const textFeatures = document.getElementById("textFeatures");
+            textFeatures.style["visibility"] = "visible";
+            visualized = false;
+          }
+
+          if (visualized == true) {
+            const rowDisplay = document.getElementById("rowDisplay");
+            rowDisplay.style.width = "1200px";
+          } else {
+            const rowDisplay = document.getElementById("rowDisplay");
+            rowDisplay.style.width = "800px";
+          }
+
+        });
+      }
+    </script>
+    <!-- tagger section -->
+    <section class="problem_section layout_padding">
+      <div class="container" style="margin-bottom: 0px;">
+        <div class="row">
+          <div class="col-md-12">
+            <form>
+              <div class="form-group">
+                <label for="typeTag">Select a type of annotation</label>
+                <select id="typeTag" class="form-control">
+                  <option value="Global tag" selected>Global annotation</option>
+                  <option value="Time annotated tag">Time instant annotation</option>
+                  <option value="Time window tag">Time window annotation</option>
+                  <script>
+                    var timeWindow = {};
+                    let buttonInit = null; // store the button element so we can reference it later
+                    let buttonEnd = null; // store the button element so we can reference it later
+                    let eventsForm = null;
+                    const typeTagSelect = document.getElementById("typeTag");
+                    typeTagSelect.addEventListener("change", () => {
+                      const selectedOption = typeTagSelect.options[typeTagSelect.selectedIndex];
+                      // Text replay, create or remove events form
+                      if ("{{typeReplay}}" == "textReplay") {
+                        if (selectedOption.value === "Time window tag" || selectedOption.value === "Time annotated tag") {
+                          if (!eventsForm) {
+                            eventsForm = document.createElement("form");
+                            eventsForm.innerHTML =
+                              '<div class="form-group" style="margin-top: 15px;">' +
+                              '<label for="eventSelect">Select an event </label>' +
+                              '<select id="eventSelect" class="form-control">' +
+                              '{% for key,value in eventsDict.items %}' +
+                              '<option value="{{ value|slice:'1: 2'|first }}">{{key}}: +{{ value|slice:"0:1"|first }}s - {{ value|slice:"2:3"|first }}</option>' +
+                                '{% endfor %}' +
+                                '</select>' +
+                                '</div>';
+                            typeTagSelect.parentNode.appendChild(eventsForm);
+                          }
+                          eventsForm.style.display = "auto";
+                        } else {
+                          if (eventsForm) {
+                            eventsForm.style.display = "none";
+                            eventsForm.parentNode.removeChild(eventsForm);
+                            eventsForm = null;
+                          }
+                        }
+                      }
+                      // Add set beginning and end buttons if it's a time window tag
+                      if (selectedOption.value === "Time window tag") {
+                        if (!buttonInit) {
+                          // First button
+                          buttonInit = document.createElement("button");
+                          buttonInit.textContent = "Set time window beginning";
+                          buttonInit.classList.add("btn-primary");
+                          buttonInit.addEventListener("click", function (eventInit) {
+                            eventInit.preventDefault(); // stop the form from submitting
+                            if ("{{typeReplay}}" == "videoReplay") {
+                              var idPlayer = document.getElementById("replayVideo");
+                              var currentTime = idPlayer.currentTime;
+                            } else if ("{{typeReplay}}" == "audioReplay") {
+                              var idPlayer = document.getElementById("waveform");
+                              var currentTime = wavesurfer.getCurrentTime();
+                            } else {
+                              const eventsForm = document.getElementById("eventSelect");
+                              var currentTime = parseFloat(eventsForm.value);
+                            }
+                            // code to create time window here                             
+                            timeWindow.beginning = currentTime;
+                            showInit = currentTime.toFixed(2);
+                            const messageInit = document.querySelector("#timeWindowInitMessage")
+                            timeWindowInitMessage.innerHTML = `
+																	<h4 style="color: #2E86C1">Time window beginning: ${showInit}s</h4>`;
+                          });
+                          typeTagSelect.parentNode.appendChild(buttonInit);
+                          // Second button                           
+                          buttonEnd = document.createElement("button");
+                          buttonEnd.textContent = "Set time window end";
+                          buttonEnd.classList.add("btn-primary");
+                          buttonEnd.addEventListener("click", function (eventEnd) {
+                            eventEnd.preventDefault(); // stop the form from submitting
+                            if ("{{typeReplay}}" == "videoReplay") {
+                              var idPlayer = document.getElementById("replayVideo");
+                              var currentTime = idPlayer.currentTime;
+                            } else if ("{{typeReplay}}" == "audioReplay") {
+                              var idPlayer = document.getElementById("replayAudio");
+                              var currentTime = wavesurfer.getCurrentTime();
+                            } else {
+                              const eventsForm = document.getElementById("eventSelect");
+                              var currentTime = parseFloat(eventsForm.value);
+                            }
+                            // code to create time window                             
+                            timeWindow.end = currentTime;
+                            showEnd = currentTime.toFixed(2);
+                            const messageEnd = document.querySelector("#timeWindowEndMessage")
+                            timeWindowEndMessage.innerHTML = `
+																	<h4 style="color: #2E86C1">Time window end: ${showEnd}s</h4>`;
+                          });
+                          typeTagSelect.parentNode.appendChild(buttonEnd);
+                        }
+                        buttonInit.style.display = "auto"; // Show the button
+                        buttonEnd.style.display = "auto"; // Show the button
+                        //Show messages 
+                        const messageInit = document.querySelector("#timeWindowInitMessage")
+                        timeWindowInitMessage.innerHTML = `
+																	<h4 style="color: #2E86C1">Time window beggining: -
+																	</h3>`;
+                        const messageEnd = document.querySelector("#timeWindowEndMessage")
+                        timeWindowEndMessage.innerHTML = `
+																	<h4 style="color: #2E86C1">Time window end: -
+																	</h3>`;
+                      } else {
+                        // Clear the window variable
+                        timeWindow = {}
+                        // Clear messages
+                        const messageInit = document.querySelector("#timeWindowInitMessage")
+                        timeWindowInitMessage.innerHTML = `
+																	<h3></h3>`;
+                        const messageEnd = document.querySelector("#timeWindowEndMessage")
+                        timeWindowEndMessage.innerHTML = `
+																	<h3></h3>`;
+                        // Remove the buttons
+                        if (buttonInit) {
+                          buttonInit.style.display = "none"; // hide the button if it exists
+                          buttonEnd.style.display = "none";
+                          buttonInit.parentNode.removeChild(buttonInit); // remove the button from the page
+                          buttonEnd.parentNode.removeChild(buttonEnd);
+                          buttonInit = null; // reset the button variable
+                          buttonEnd = null;
+                        }
+                      }
+                    });
+                  </script>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <form>
+              <div class="form-group">
+                <label for="inputState">Select a label to tag</label>
+                <select id="inputState" class="form-control">
+                  <option value="" selected></option> {% for option in competences %} <option value="{{ option }}">{{option }}</option> {% endfor %}
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <form id="secondForm">
+              <!-- This form will be dynamically loaded based on the selected option -->
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div id="timeWindowInitMessage" style="margin-top: 30px;">
+              <!-- This message will be dynamically loaded -->
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div id="timeWindowEndMessage" style="margin-top: 30px;">
+              <!-- This message will be dynamically loaded -->
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div id="responseMessage" style="margin-top: 30px;">
+            <!-- This message will be dynamically loaded -->
+          </div>
+        </div>
+        <div class="detail-box" style="margin-top: 30px; margin-left: 20px;">
+          <div>
+            <button type="submit" class="btn btn-primary">Add tag</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      // Define the getCookie function
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      const addButton = document.querySelector('.btn-primary');
+      addButton.addEventListener('click', function (event) {
+        // Code to handle the click event
+        // Get the first form and the second form
+        const firstForm = document.getElementById("inputState");
+        const secondForm = document.getElementById("secondInput");
+        const typeForm = document.getElementById("typeTag");
+        const message = document.querySelector("#responseMessage")
+        if (secondForm != null) {
+          if ((secondForm.value == "") | (firstForm.value == "")) {
+            responseMessage.innerHTML = `
+										<h3 style="color: red">Select a valid tag</h3>`;
+          } else if ((typeForm.value == "Time window tag") && (timeWindow.beginning > timeWindow.end)) {
+            responseMessage.innerHTML = `
+										<h3 style="color: red">Select a valid time window</h3>`;
+          } else if ((typeForm.value == "Time window tag") && ((timeWindow.beginning == null) || ((timeWindow.end == null)))) {
+            if ((timeWindow.beginning == null) && (timeWindow.end == null)) {
+              responseMessage.innerHTML = `
+										<h3 style="color: red">Select a valid beginning and end</h3>`;
+            } else if ((timeWindow.beginning == null)) {
+              responseMessage.innerHTML = `
+										<h3 style="color: red">Select a valid beginning</h3>`;
+            } else if ((timeWindow.end == null)) {
+              responseMessage.innerHTML = `
+										<h3 style="color: red">Select a valid end</h3>`;
+            }
+          } else {
+            const dictToSend = {};
+            // Get the CSRF token from the cookie
+            const csrftoken = getCookie('csrftoken');
+            dictToSend["username"] = "{{username}}";
+            dictToSend["game"] = "{{game}}";
+            dictToSend["group"] = "{{group}}";
+            dictToSend["player"] = "{{player}}";
+            dictToSend["replay"] = "{{replay}}";
+            // Annotated Tag
+            if (typeForm.value == "Time annotated tag") {
+              if ("{{typeReplay}}" == "videoReplay") {
+                var video = document.getElementById("replayVideo");
+                var currentTime = video.currentTime;
+                dictToSend["annotationTime"] = currentTime;
+              } else if ("{{typeReplay}}" == "audioReplay") {
+                var audio = document.getElementById("replayAudio");
+                var currentTime = wavesurfer.getCurrentTime();
+                dictToSend["annotationTime"] = currentTime;
+              } else {
+                const eventsForm = document.getElementById("eventSelect");
+                var currentTime = parseFloat(eventsForm.value);
+                dictToSend["annotationTime"] = currentTime;
+              }
+            }
+            // Time window tag
+            else {
+              dictToSend["annotationTime"] = timeWindow.beginning
+              dictToSend["finalAnnotationTime"] = timeWindow.end
+            }
+            dictToSend["competence"] = firstForm.value;
+            dictToSend["tag"] = secondForm.value;
+            fetch("/addTag/", {
+              method: 'POST',
+              body: JSON.stringify(dictToSend),
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+              }
+            }).then(response => response.json()).then(data => {
+              // Tag is created
+              if (data.hasOwnProperty("tagCreated")) {
+                // Time annotations
+                if (data.hasOwnProperty("annotationTime")) {
+                  // Time window tag
+                  if (data.hasOwnProperty("finalAnnotationTime")) {
+                    responseMessage.innerHTML = `
+										<h4>Label \"${data.tagCreated[1]}\" annotated in replay ${data.tagCreated[0]} with value \"${data.tagCreated[2]}\" with time window [${data.annotationTime},${data.finalAnnotationTime}]</h4>`;
+                    // Time annotated tag
+                  } else {
+                    responseMessage.innerHTML = `
+										<h4>Label \"${data.tagCreated[1]}\" annotated in replay ${data.tagCreated[0]} with value \"${data.tagCreated[2]}\" in second ${data.annotationTime}</h4>`;
+                  }
+                  // Global annotation
+                } else {
+                  responseMessage.innerHTML = `
+										<h4>Label \"${data.tagCreated[1]}\" annotated in replay ${data.tagCreated[0]} with value \"${data.tagCreated[2]}\" </h4>`;
+                }
+                // Tag is updated
+              } else if (data.hasOwnProperty("tagUpdated")) {
+                // Time annotations
+                if (data.hasOwnProperty("annotationTime")) {
+                  // Time window tag
+                  if (data.hasOwnProperty("finalAnnotationTime")) {
+                    responseMessage.innerHTML = `
+										<h4>Label \"${data.tagUpdated[1]}\" updated in replay ${data.tagUpdated[0]} with value \"${data.tagUpdated[2]}\" in time window  [${data.annotationTime}, ${data.finalAnnotationTime}]</h4>`;
+                    // Time annotated tag
+                  } else {
+                    responseMessage.innerHTML = `
+										<h4>Label \"${data.tagUpdated[1]}\" updated in replay ${data.tagUpdated[0]} with value \"${data.tagUpdated[2]}\" in second ${data.annotationTime}</h4>`;
+                  }
+                  // Global tag
+                } else {
+                  responseMessage.innerHTML = `
+										<h4>Label \"${data.tagUpdated[1]}\" updated in replay ${data.tagUpdated[0]} with value \"${data.tagUpdated[2]}\" </h4>`;
+                }
+              } else {
+                responseMessage.innerHTML = `
+										<h4 style="color: red"> ${data.errorUser} </h4>`;
+              }
+            }).catch(error => {
+              responseMessage.innerHTML = `
+										<h3 style="color: red">${error}</h3>`;
+            });
+          }
+        } else {
+          responseMessage.innerHTML = `
+										<h3 style="color: red">Select a valid tag</h3>`;
+        }
+      });
+    </script>
+    <script>
+      // Get the first form and the second form
+      const firstForm = document.querySelector('#inputState');
+      const secondForm = document.querySelector('#secondForm');
+      // Listen for changes in the first form
+      firstForm.addEventListener('change', (event) => {
+        const selectedOption = event.target.value;
+        // Load the second form based on the selected option
+        fetch(`/get_options/${selectedOption}`).then(response => response.json()).then(data => {
+          secondForm.innerHTML = `
+      
+										<div class="form-group">
+											<label for="secondInput">Select {{selectedOption}} value:</label>
+											<select id ="secondInput" class="form-control" name="secondInput">
+            ${data.options.map(option => `
+												<option value="${option}">${option}</option>`).join('')}
+        
+											</select>
+										</div>`;
+        });
+      });
+      //Listen for changes in submit button
+    </script>
+    <!-- end tagger section -->
+    <section class="problem_section layout_padding5">
+      <div class="layout_padding5">
+        <div class="detail-box">
+          <div>
+            <a href="/selectUser/{{game}}/{{group}}/{{player}}?typeReplay={{typeReplay}}"> Return to replay loader </a>
+          </div>
+        </div>
+    </section>
+    <!-- end service section -->
+    <!--problem section -->
+    <section class="problem_section layout_padding">
+      <div class="container">
+        <div class="custom_heading-container">
+          <h2> Want to know more about our research ? </h2>
+        </div>
+        <div class="layout_padding2">
+          <div class="detail-box">
+            <div>
+              <a href="https://www.manueljgomez.es/publication.html"> Read More </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- end problem section -->
+    <!-- why section -->
+    <!-- end contact section -->
+    <div class="footer_bg">
+      <!-- info section -->
+      <section class="info_section layout_padding2-bottom">
+        <div class="container">
+          <h3 class=""> GBA Labeling Tool </h3>
+        </div>
+      </section>
+      <!-- end info_section -->
+      <!-- footer section -->
+    </div>
+    <script type="text/javascript" src="/static/replay/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="/static/replay/js/bootstrap.js"></script>
+  </body>
+
+</html>
